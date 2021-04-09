@@ -19,7 +19,7 @@ namespace Gaia::SerialIO
     /// Destructor
     SerialPort::~SerialPort()
     {
-        if (IsOpened())
+        if (IsOpen())
         {
             IODevice.close();
         }
@@ -51,7 +51,7 @@ namespace Gaia::SerialIO
     /// Close the serial port device.
     void SerialPort::Close()
     {
-        if (IsOpened())
+        if (IsOpen())
         {
             IODevice.close();
         }
