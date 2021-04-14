@@ -11,7 +11,6 @@ namespace Gaia::SerialIO
                            boost::asio::serial_port_base::flow_control::type flow_control,
                            boost::asio::serial_port_base::parity::type parity,
                            boost::asio::serial_port_base::stop_bits::type stop_bits) :
-
             DeviceSettings{.DeviceFileName = std::move(file_name), .BaudRate = baud_rate, .CharacterSize = character_size,
                            .FlowControl = flow_control, .Parity = parity, .StopBits = stop_bits}
     {}
@@ -125,7 +124,7 @@ namespace Gaia::SerialIO
         if (IODevice.is_open())
         {
             ByteUtility::BytesBuffer buffer;
-            buffer.resize(DefaultBufferSize);
+            buffer.resize(DataBufferSize);
             std::size_t real_length = IODevice.read_some(boost::asio::buffer(buffer));
             buffer.resize(real_length);
             return buffer;

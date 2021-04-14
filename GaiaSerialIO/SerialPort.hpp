@@ -82,6 +82,7 @@ namespace Gaia::SerialIO
         /**
          * @brief Construct and bind to a device automatically.
          * @param file_name File name of the serial port file.
+         * @attention This constructor will not open the serial port file automatically.
          * @details
          *  Attention, this function will only store the basic options of the serial port, but will not open
          *  the serial port device automatically.
@@ -97,8 +98,8 @@ namespace Gaia::SerialIO
         virtual ~SerialPort();
 
     public:
-        /// Size of the default buffer.
-        unsigned long DefaultBufferSize {256};
+        /// Size of the default buffer for incoming bytes.
+        unsigned long DataBufferSize {256};
 
         //==============================
         // Basic Control
@@ -180,7 +181,7 @@ namespace Gaia::SerialIO
         /**
          * @brief Read uncertain amount of bytes.
          * @return Buffer of the read bytes.
-         * @details It will use DefaultBufferSize as the default size of the buffer.
+         * @details It will use DataBufferSize as the default size of the buffer.
          * @pre The serial port is open.
          */
         ByteUtility::BytesBuffer Read();
