@@ -86,7 +86,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC "GaiaByteUtility")
 #==============================
 
 # Boost
-find_package(Boost 1.71 REQUIRED COMPONENTS system stacktrace_backtrace)
+find_package(Boost 1.65 REQUIRED COMPONENTS system stacktrace_backtrace)
 target_include_directories(${TARGET_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(${TARGET_NAME} PUBLIC ${Boost_LIBRARIES})
 

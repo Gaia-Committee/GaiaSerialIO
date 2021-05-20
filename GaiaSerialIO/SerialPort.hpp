@@ -4,6 +4,7 @@
 #include <GaiaByteUtility/GaiaByteUtility.hpp>
 #include <future>
 #include <atomic>
+#include <boost/asio/io_service.hpp>
 
 namespace Gaia::SerialIO
 {
@@ -72,7 +73,7 @@ namespace Gaia::SerialIO
         //==============================
 
         /// Execution context for IO operations.
-        boost::asio::io_context IOContext {};
+        boost::asio::io_service IOContext {};
         /// Object for serial IO operations.
         boost::asio::serial_port IODevice {IOContext};
 
