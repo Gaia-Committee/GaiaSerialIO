@@ -13,7 +13,14 @@ namespace Gaia::SerialIO
                            boost::asio::serial_port_base::stop_bits::type stop_bits) :
             DeviceSettings{.DeviceFileName = std::move(file_name), .BaudRate = baud_rate, .CharacterSize = character_size,
                            .FlowControl = flow_control, .Parity = parity, .StopBits = stop_bits}
-    {}
+    {
+        ListenerBlocker = std::async(std::launch::async, [this, context = &IOContext, life_flag = &ListenerLifeFlag]() {
+            while (life_flag->load())
+            {
+                context->run();
+            }
+        });
+    }
 
     /// Destructor
     SerialPort::~SerialPort()
@@ -22,6 +29,35 @@ namespace Gaia::SerialIO
         {
             IODevice.close();
         }
+        ListenerLifeFlag = false;
+        /// Wait for listener thread to stop.
+        ListenerBlocker.get();
+    }
+
+    void SerialPort::ReceiveData(std::shared_ptr<std::vector<unsigned char>> buffer)
+    {
+        if (OnReceivedData)
+        {
+            OnReceivedData(std::move(buffer));
+        }
+        ResumeListen();
+    }
+
+    void SerialPort::ResumeListen()
+    {
+        auto buffer = std::make_shared<std::vector<unsigned char>>();
+        buffer->resize(DataBufferSize);
+        IODevice.async_read_some(boost::asio::buffer(buffer->data(), buffer->size()),[this, passed_buffer = buffer](const boost::system::error_code& error, std::size_t length)
+        {
+            if (error) return;
+            passed_buffer->resize(length);
+            this->ReceiveData(passed_buffer);
+        });
+    }
+
+    void SerialPort::PauseListen()
+    {
+        IODevice.cancel();
     }
 
     /// Open the serial port device.
@@ -52,6 +88,7 @@ namespace Gaia::SerialIO
     {
         if (IsOpen())
         {
+            IODevice.cancel();
             IODevice.close();
         }
     }
@@ -110,7 +147,9 @@ namespace Gaia::SerialIO
     {
         if (IODevice.is_open())
         {
+            PauseListen();
             boost::asio::write(IODevice, boost::asio::buffer(address.Data, address.Length));
+            ResumeListen();
         }
         else
         {
@@ -125,7 +164,9 @@ namespace Gaia::SerialIO
         {
             ByteUtility::BytesBuffer buffer;
             buffer.resize(DataBufferSize);
+            PauseListen();
             std::size_t real_length = IODevice.read_some(boost::asio::buffer(buffer));
+            ResumeListen();
             buffer.resize(real_length);
             return buffer;
         }
@@ -142,7 +183,9 @@ namespace Gaia::SerialIO
         {
             ByteUtility::BytesBuffer buffer;
             buffer.resize(size);
+            PauseListen();
             boost::asio::read(IODevice, boost::asio::buffer(buffer));
+            ResumeListen();
             return buffer;
         }
         else

@@ -2,6 +2,8 @@
 
 #include <boost/asio/serial_port.hpp>
 #include <GaiaByteUtility/GaiaByteUtility.hpp>
+#include <future>
+#include <atomic>
 
 namespace Gaia::SerialIO
 {
@@ -74,6 +76,16 @@ namespace Gaia::SerialIO
         /// Object for serial IO operations.
         boost::asio::serial_port IODevice {IOContext};
 
+        std::future<void> ListenerBlocker;
+        std::atomic_bool  ListenerLifeFlag {true};
+
+        /// Continue to listen for incoming data.
+        void ResumeListen();
+        /// Pause the listening task so the IODevice can be used for read/write task.
+        void PauseListen();
+        /// Process the data received in the listening task.
+        void ReceiveData(std::shared_ptr<std::vector<unsigned char>> buffer);
+
     public:
         //==============================
         // Constructors and Destructors
@@ -100,6 +112,9 @@ namespace Gaia::SerialIO
     public:
         /// Size of the default buffer for incoming bytes.
         unsigned long DataBufferSize {256};
+
+        /// Triggered when received data.
+        std::function<void(std::shared_ptr<std::vector<unsigned char>>)> OnReceivedData;
 
         //==============================
         // Basic Control
