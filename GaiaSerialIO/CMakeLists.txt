@@ -86,7 +86,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC "GaiaByteUtility")
 #==============================
 
 # Boost
-find_package(Boost 1.65 REQUIRED COMPONENTS system stacktrace_backtrace)
+find_package(Boost 1.65 REQUIRED COMPONENTS system)
 target_include_directories(${TARGET_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(${TARGET_NAME} PUBLIC ${Boost_LIBRARIES})
 
@@ -102,8 +102,8 @@ endif()
 
 # Install executable files and libraries to 'default_path/'.
 install(TARGETS ${TARGET_NAME}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+        RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/
+        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
 # Install header files to 'default_path/TARGET_NAME/'
 install(DIRECTORY "." DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${TARGET_NAME}/ FILES_MATCHING PATTERN "*.hpp")
